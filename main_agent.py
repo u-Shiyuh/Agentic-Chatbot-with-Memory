@@ -4,11 +4,20 @@ from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage
 from bedrock_agentcore.runtime import BedrockAgentCoreApp
 from langchain_aws import ChatBedrock
+from langgraph_checkpoint_aws import AgentCoreMemorySaver
 
 import argparse
 import json
 import operator
 import math
+
+
+
+REGION = "us-east-1"
+MEMORY_ID = "main_agent_memory-7XRnL63Zmv"
+MODEL_ID = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+checkpointer = AgentCoreMemorySaver(MEMORY_ID, region_name=REGION)
+
 
 app = BedrockAgentCoreApp()
 
@@ -29,7 +38,7 @@ def create_agent():
 
     # Initialize your LLM (adjust model and parameters as needed)
     llm = ChatBedrock(
-        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",  # or your preferred model
+        model_id=MODEL_ID,
         model_kwargs={"temperature": 0.1}
     )
 
@@ -68,7 +77,7 @@ def create_agent():
     graph_builder.set_entry_point("chatbot")
 
     # Compile the graph
-    return graph_builder.compile()
+    return graph_builder.compile()#checkpointer=checkpointer)
 
 # Initialize the agent
 agent = create_agent()
@@ -79,9 +88,18 @@ def langgraph_bedrock(payload):
     Invoke the agent with a payload
     """
     user_input = payload.get("prompt")
+    thread_id = payload.get("thread_id")    # pass the session_id for this user, if new convo create a new session
+    actor_id = payload.get("actor_id")      # pass the user_id
 
     # Create the input in the format expected by LangGraph
-    response = agent.invoke({"messages": [HumanMessage(content=user_input)]})
+    response = agent.invoke({"messages": [HumanMessage(content=user_input)]},
+        # config={
+        #     "configurable": {
+        #     "thread_id": thread_id,
+        #     "actor_id": actor_id,
+        #     }
+        # }
+        )
 
     # Extract the final message content
     return response["messages"][-1].content

@@ -1,6 +1,7 @@
 uv
 langchain[aws]
 langgraph
+langgraph_checkpoint_aws
 langsmith[otel]
 duckduckgo-search 
 langchain-community
