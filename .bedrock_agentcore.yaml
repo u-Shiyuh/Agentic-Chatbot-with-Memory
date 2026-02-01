@@ -1,0 +1,31 @@
+default_agent: main_agent
+agents:
+  main_agent:
+    name: main_agent
+    entrypoint: C:/Users/machupichu/Repositories/agentic-chatbot/main_agent.py
+    platform: linux/arm64
+    container_runtime: none
+    aws:
+      execution_role: arn:aws:iam::943986266082:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-dbcb276f38
+      execution_role_auto_create: false
+      account: '943986266082'
+      region: us-east-1
+      ecr_repository: 943986266082.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-main_agent
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: main_agent-wjWshg9bpX
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:943986266082:runtime/main_agent-wjWshg9bpX
+      agent_session_id: fe8c80eb-3515-4126-9610-7353b0750c48
+    codebuild:
+      project_name: bedrock-agentcore-main_agent-builder
+      execution_role: arn:aws:iam::943986266082:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-dbcb276f38
+      source_bucket: bedrock-agentcore-codebuild-sources-943986266082-us-east-1
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
